@@ -209,6 +209,8 @@ section.download {
   background-image: url("../img/1small.png");
   background-position: center;
   background-size: cover;
+  background-color: rgba(255,255,255,0.5);
+  background-blend-mode: lighten;
 }
 
 section.download h2 {
