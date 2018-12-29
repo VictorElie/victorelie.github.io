@@ -281,7 +281,7 @@ section.features .feature-item h3 {
 }
 
 section.features .feature-item i {
-  font-size: 80px;
+  font-size: 60px;
   display: block;
   margin-bottom: 15px;
   background: -webkit-gradient(linear, right top, left top, from(#FCFCFC), to(#29B1D8));
