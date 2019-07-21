@@ -1,0 +1,138 @@
+<html>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script type="text/javascript">
+
+    let username = 'celinema';
+    let key = 'e38319a3-dbc9-4283-9221-a295a9be4961';
+
+/*
+digestB64
+RQLyZmj06DPNWdIvESYBvgk+GaI=
+nonceB64
+jl+pYwGqwAX5d/nwBiVgDg==
+created
+2019-07-21T03:15:40.195Z
+*/
+
+    var now = new Date();
+    let created = now.toISOString();
+    //let created = '2019-07-21T04:50:47.228Z';
+    let nonce = CryptoJS.lib.WordArray.random(16); // must be 16 bytes...
+    //let nonce = CryptoJS.enc.Base64.parse('Fd3R08mOgQ2rURw82pksEQ==');
+
+    let message = nonce.clone().concat(CryptoJS.enc.Utf8.parse(created)).concat(CryptoJS.enc.Utf8.parse(key));  // concatenate binaries (decoded)
+
+    let encryptedSHA1 = CryptoJS.SHA1(message); // by default input assumed to be UTF8
+
+    console.log('created', created);
+    console.log('nonceB64', nonce.toString(CryptoJS.enc.Base64));
+    console.log('digestB64', encryptedSHA1.toString(CryptoJS.enc.Base64));
+
+
+    //create the SOAP request
+    var xmlSOAP = '<?xml version="1.0" encoding="utf-8"?>' +
+        '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://webservice.integrator.hkpost.com" xmlns:obj="http://object.integrator.hkpost.com">' +
+           '<soapenv:Header>' +
+            '<wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" soapenv:mustUnderstand="1">' +
+               '<wsse:UsernameToken xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="UsernameToken-1">' +
+                  '<wsse:Username>' + username + '</wsse:Username>' +  // USERNAME
+                  '<wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordDigest">' +
+                  encryptedSHA1.toString(CryptoJS.enc.Base64) + '</wsse:Password>' +  // PASSWORD DIGEST
+                  '<wsse:Nonce EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">' +
+                  nonce.toString(CryptoJS.enc.Base64) + '</wsse:Nonce>' +  // NONCE
+                  '<wsu:Created>' + created + '</wsu:Created>' + // TIMESTAMP
+               '</wsse:UsernameToken>' +
+            '</wsse:Security>' +
+           '</soapenv:Header>' +
+           '<soapenv:Body>' +
+              '<web:createOrder>' +
+                 '<web:api02Req>' +
+                    '<obj:ecshipUsername>tcelinema</obj:ecshipUsername>' +
+                    '<obj:integratorUsername>celinema</obj:integratorUsername>' +
+                    //'<obj:certNumber>?</obj:certNumber>' +
+                    //'<obj:certQty>?</obj:certQty>' +
+                    '<obj:countryCode>AUB</obj:countryCode>' +
+                    //'<obj:declarationComments>?</obj:declarationComments>' +
+                    //'<obj:dropAndGoFlag>?</obj:dropAndGoFlag>' +
+                    //'<obj:impEmail>?</obj:impEmail>' +
+                    //'<obj:impFaxNo>?</obj:impFaxNo>' +
+                    //'<obj:impRef>?</obj:impRef>' +
+                    //'<obj:impTelNo>?</obj:impTelNo>' +
+                    '<obj:insurAmount>290</obj:insurAmount>' +
+                    //'<obj:insurTypeCode>?</obj:insurTypeCode>' +
+                    //'<obj:invoiceNumber>?</obj:invoiceNumber>' +
+                    //'<obj:invoiceQty>?</obj:invoiceQty>' +
+                    //'<obj:ipostalStation>?</obj:ipostalStation>' +
+                    '<obj:itemCategory>G</obj:itemCategory>' +
+                    '<obj:itemNo>10145</obj:itemNo>' +
+                    //'<obj:licenceNumber>?</obj:licenceNumber>' +
+                    //'<obj:mailSize>?</obj:mailSize>' +
+                    //'<obj:mailType>?</obj:mailType>' +
+                    //'<obj:mcn>?</obj:mcn>' +
+                    //'<obj:merchandiserEmail>?</obj:merchandiserEmail>' +
+                    //'<obj:nonDeliveryOptions>?</obj:nonDeliveryOptions>' +
+                    //'<obj:noticeMethod>?</obj:noticeMethod>' +
+                    //'<obj:paidAmt>?</obj:paidAmt>' +
+                    //'<obj:payFlag>?</obj:payFlag>' +
+                    //'<obj:permitNo>?</obj:permitNo>' +
+                    //'<obj:pickupOffice>?</obj:pickupOffice>' +
+                    '<obj:products>' +
+                       '<!--Zero or more repetitions:-->' +
+                       '<web:item>' +
+                          '<obj:contentDesc>Knitting Kit</obj:contentDesc>' +
+                          '<obj:currencyCode>HKD</obj:currencyCode>' +
+                          //'<obj:productCountry>?</obj:productCountry>' +
+                          '<obj:productQty>1</obj:productQty>' +
+                          //'<obj:productTariffCode>?</obj:productTariffCode>' +
+                          '<obj:productValue>290</obj:productValue>' +
+                          '<obj:productWeight>0.480</obj:productWeight>' +
+                       '</web:item>' +
+                    '</obj:products>' +
+                    '<obj:recipientAddress>18 av. De Lattre de Tassigny</obj:recipientAddress>' +
+                    '<obj:recipientCity>Cannes</obj:recipientCity>' +
+                    '<obj:recipientContactNo>0493396363</obj:recipientContactNo>' +
+                    '<obj:recipientEmail>calicopuce@gmail.com</obj:recipientEmail>' +
+                    //'<obj:recipientFax>?</obj:recipientFax>' +
+                    '<obj:recipientName>Calico</obj:recipientName>' +
+                    '<obj:recipientPostalNo>06400</obj:recipientPostalNo>' +
+                    '<obj:refNo>CalicopuceTest001</obj:refNo>' +
+                    //'<obj:satchelTypeCode>?</obj:satchelTypeCode>' +
+                    '<obj:senderAddress>ROOM 2203, 22/F, CORN YAN CENTRE, 3 JUPITER STREET, FORTRESS HILL</obj:senderAddress>' +
+                    '<obj:senderContactNo>69972023</obj:senderContactNo>' +
+                    '<obj:senderCountry>Hong Kong SAR</obj:senderCountry>' +
+                    '<obj:senderCustRef>senderCustRef</obj:senderCustRef>' +
+                    '<obj:senderEmail>hello@knittingroomhk.com</obj:senderEmail>' +
+                    //'<obj:senderFax>?</obj:senderFax>' +
+                    '<obj:senderName>THE KNITTING ROOM</obj:senderName>' +
+                    '<obj:shipCode>AEX</obj:shipCode>' +
+                    //'<obj:smsLang>?</obj:smsLang>' +
+                 '</web:api02Req>' +
+              '</web:createOrder>' +
+           '</soapenv:Body>' +
+        '</soapenv:Envelope>';
+
+        //console.log(xmlSOAP);
+
+        // CORS fix for local testing
+        // https://medium.com/@dtkatz/3-ways-to-fix-the-cors-error-and-how-access-control-allow-origin-works-d97d55946d9
+        // Chrome extension plugging to be removed after testing
+        // https://chrome.google.com/webstore/user/purchases?hl=en
+
+
+    axios.post('https://service.hongkongpost.hk/API-trial/services/Posting?wsdl', xmlSOAP, {
+        headers:{
+          'Content-Type': 'text/xml; charset=utf-8',
+          'SOAPAction': ''
+        }
+      }).then(response => {
+        console.log('Response: ', response.status);
+      }).catch(error => {
+        console.log('Error: ', error.message)
+        console.log(error.response);
+      })
+
+
+</script>
+<body></body>
+</html>
